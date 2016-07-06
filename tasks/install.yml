@@ -1,0 +1,29 @@
+---
+# Install tasks for ansible-role-zabbixserver
+## Download and Extract
+## --------------------------
+- name: Copy over agent package 
+  become: yes
+  copy: src=zabbix-release_3.0-1+jessie_all.deb dest=/home/{{ username }}/zabbix-release_3.0-1+jessie_all.deb owner={{ username }} group={{ username}}
+
+- name: Depackage zabbix agent
+  become: yes
+  command: dpkg -i zabbix-release_3.0-1+jessie_all.deb
+
+- name: Install zabbix agent
+  become: yes
+  apt: pkg=zabbix-agent state=installed update_cache=true
+
+- name: Copy config 
+  become: yes
+  copy: src=zabbix_agentd.conf dest=/etc/zabbix/zabbix_agentd.conf owner=root group=root
+  notify: 
+      - stop zabbix-agent
+
+- meta: flush_handlers
+
+- name: start zabbix-agent
+  service: name=zabbix-agent state=started
+
+
+
